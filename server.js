@@ -7,7 +7,7 @@ const { generateDummyData } = require("./faker");
 const app = express();
 const hostname = "localhost";
 const port = 3000;
-const DB_URI = "mongodb://127.0.0.1:27017/testdb";
+const DB_URI = "mongodb://127.0.0.1:27017/term2db";
 const options = {
   autoIndex: false, // Don't build indexes
   maxPoolSize: 10, // Maintain up to 10 socket connections
