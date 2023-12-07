@@ -65,7 +65,7 @@ houseRouter.get("/", async (req, res) => {
     if (orderType === OrderTypes.PRICE)
       addedTotalChargeHouses.sort((a, b) => b.totalCharge - a.totalCharge);
 
-    res.send({ addedTotalChargeHouses });
+    res.send(addedTotalChargeHouses);
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: error.message });
@@ -95,7 +95,7 @@ houseRouter.get("/detail", async (req, res) => {
         },
       });
 
-    res.send({ foundHouse });
+    res.send(foundHouse);
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: error.message });
