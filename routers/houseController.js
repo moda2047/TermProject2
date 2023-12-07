@@ -28,12 +28,14 @@ houseRouter.get("/", async (req, res) => {
     const foundHouses = await House.find({
       houseType,
       capacity: { $gte: numOfGuest },
-    }).populate({
-      path: "houseCalendar",
-      match: {
-        $and: [{ date: { $gte: checkin } }, { date: { $lt: checkout } }],
-      },
-    });
+    })
+      .sort(orderType === OrderTypes.SCORE ? { avgScore: "desc" } : {})
+      .populate({
+        path: "houseCalendar",
+        match: {
+          $and: [{ date: { $gte: checkin } }, { date: { $lt: checkout } }],
+        },
+      });
 
     const toRemove = [];
 
@@ -60,7 +62,40 @@ houseRouter.get("/", async (req, res) => {
       return { ...house.toJSON(), totalCharge };
     });
 
+    if (orderType === OrderTypes.PRICE)
+      addedTotalChargeHouses.sort((a, b) => b.totalCharge - a.totalCharge);
+
     res.send({ addedTotalChargeHouses });
+  } catch (error) {
+    console.log(error);
+    res.status(500).send({ error: error.message });
+  }
+});
+
+houseRouter.get("/detail", async (req, res) => {
+  const { houseId, month } = req.query;
+  const now = new Date(Date.now());
+  const startOfMonth = new Date(now.getUTCFullYear(), Number(month) - 1, 1);
+  const startOfNextMonth = new Date(now.getUTCFullYear(), Number(month), 1);
+
+  try {
+    const foundHouse = await House.findById(houseId)
+      .populate({ path: "conveniences", select: "category" })
+      .populate({
+        path: "comments",
+        populate: { path: "member", select: "name" },
+      })
+      .populate({
+        path: "houseCalendar",
+        match: {
+          $and: [
+            { date: { $gte: startOfMonth } },
+            { date: { $lt: startOfNextMonth } },
+          ],
+        },
+      });
+
+    res.send({ foundHouse });
   } catch (error) {
     console.log(error);
     res.status(500).send({ error: error.message });
