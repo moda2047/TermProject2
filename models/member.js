@@ -14,7 +14,7 @@ const MemberSchema = new Schema(
 MemberSchema.virtual("reservations", {
   ref: "Reservation",
   localField: "_id",
-  foreignField: "Member",
+  foreignField: "member",
 });
 
 MemberSchema.set("toObject", { virtuals: true });

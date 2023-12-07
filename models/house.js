@@ -25,12 +25,17 @@ const HouseSchema = new Schema(
 HouseSchema.virtual("comments", {
   ref: "Comment",
   localField: "_id",
-  foreignField: "House",
+  foreignField: "house",
 });
 HouseSchema.virtual("reservations", {
   ref: "Reservation",
   localField: "_id",
-  foreignField: "House",
+  foreignField: "house",
+});
+HouseSchema.virtual("houseCalendar", {
+  ref: "HouseCalendar",
+  localField: "_id",
+  foreignField: "house",
 });
 
 HouseSchema.set("toObject", { virtuals: true });

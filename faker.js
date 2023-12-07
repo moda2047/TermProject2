@@ -6,6 +6,7 @@ const {
   Reservation,
   Convenience,
   Comment,
+  HouseCalendar,
 } = require("./models");
 const {
   OrderTypes,
@@ -63,6 +64,7 @@ const generateDummyData = async () => {
   const comments = [];
   const conveniences = [];
   const reservations = [];
+  const houseCalendar = [];
   const db = mongoose.connection.db;
 
   console.log("drop all collections");
@@ -148,6 +150,14 @@ const generateDummyData = async () => {
       reserveDate.setUTCDate(reserveDate.getUTCDate() + reserveDays);
       const checkoutDate = new Date(reserveDate);
       checkoutDate.setUTCHours(11, 0, 0);
+      const newReserve = new Reservation({
+        member: guests[Math.round(Math.random() * (guests.length - 1))],
+        house,
+        checkin: checkinDate,
+        checkout: checkoutDate,
+        numOfGuest: 1 + Math.round(Math.random() * (house.capacity - 1)),
+        charge: calcCharge(house, reserveDate, reserveDays),
+      });
       reservations.push(
         new Reservation({
           member: guests[Math.round(Math.random() * (guests.length - 1))],
@@ -162,6 +172,24 @@ const generateDummyData = async () => {
       reserveDate.setUTCDate(
         reserveDate.getUTCDate() + Math.round(Math.random() * 3)
       );
+    }
+  });
+
+  reservations.map(async (reservation) => {
+    const startDate = new Date(reservation.checkin);
+    while (startDate < reservation.checkout) {
+      const newDate = new Date(startDate);
+      houseCalendar.push(
+        new HouseCalendar({
+          house: reservation.house,
+          date: newDate,
+          remain:
+            reservation.house.houseType === HouseTypes.PRIVATE
+              ? reservation.house.capacity - reservation.numOfGuest
+              : 0,
+        })
+      );
+      startDate.setDate(startDate.getDate() + 1);
     }
   });
 
@@ -199,6 +227,7 @@ const generateDummyData = async () => {
   await House.insertMany(houses);
   await Convenience.insertMany(conveniences);
   await Reservation.insertMany(reservations);
+  await HouseCalendar.insertMany(houseCalendar);
   await Comment.insertMany(comments);
   console.log("Complete inserting Dummy data");
 };

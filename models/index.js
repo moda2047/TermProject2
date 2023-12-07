@@ -4,4 +4,5 @@ module.exports = {
   ...require("./house"),
   ...require("./member"),
   ...require("./reservation"),
+  ...require("./houseCalendar"),
 };
